@@ -2,12 +2,11 @@
 
 [![Watch the demo](https://img.youtube.com/vi/A_0uRR-4RT0/hqdefault.jpg)](https://youtu.be/A_0uRR-4RT0)
 
-▶ **[Watch the demo](https://youtu.be/A_0uRR-4RT0)** — everything below, on the actual machine.
+▶ **[Watch the demo](https://youtu.be/A_0uRR-4RT0)** — everything below:
 
 An alternative firmware for the **E-licktronic NAVA / NAVA Extra 9**, built on
-v1.028beta. It fixes a long list of real bugs — including the ones behind the
-timing jitter and the unreproducible glitches — and adds the things the machine
-was always one step away from doing.
+v1.028beta. It fixes a long list of bugs — including the ones behind the
+timing jitter and unreproducible glitches and adds new features.
 
 **Target:** ATmega1284 @ 16 MHz · MightyCore, Standard pinout.
 
@@ -20,32 +19,14 @@ was always one step away from doing.
 
 ## What it fixes
 
-**Trigger jitter no longer depends on how busy a step is.** The stock ISR
-programmed the DAC and settled the sample-and-hold mux *before* latching
-triggers — about 35 µs per sounding instrument. A kick-only step fired ~35 µs
-late; a ten-instrument step ~350 µs late, so the groove tightened and loosened
-with the arrangement. That work now happens half a step early. Firing is a mask
-and one SPI write.
+**Trigger jitter**
+**Stack buffer overflows in the LCD code.**
+**Synced pattern changes land on the bar line.**
+**No dropped tick when you turn the tempo knob**
+**Encoder edits no longer bleed between fields.**
+**The hi-hat stops flamming between weak and strong hits.**
 
-**Six stack buffer overflows in the LCD code.** They smashed adjacent stack on
-every redraw. What got corrupted depended on register allocation, so it changed
-with every recompile — which is almost certainly the source of the
-long-standing "it does something weird sometimes" reports.
-
-**Synced pattern changes land on the bar line.** The 30–50 ms EEPROM load used
-to run *after* the boundary, so step 0 played from the outgoing pattern.
-
-**No dropped tick when you turn the tempo knob** while running.
-
-**Encoder edits no longer bleed between fields.** Misnested `switch` cases meant
-adjusting track position also rewrote the pattern number and length.
-
-**The hi-hat stops flamming between weak and strong hits.** CH and OH share one
-sample-and-hold, and setting the next step's level halfway through the current
-note re-articulated a hat that was still ringing. The crash and ride get the same
-discipline.
-
-…and about forty more, each one commented in place.
+…and more, each one commented in place.
 
 ## What it adds
 
@@ -195,9 +176,6 @@ Reversible: write `0xDC` back if you ever obtain the original SysEx bootloader.
 
 ## Pattern backup over SysEx
 
-In simple terms: When uploading your pattern bank to Nava via sysex, set in your
-preferred midi sysex program's settings - **Dump upload pause interval: 30ms**
-
 The firmware speaks `F0 7D 4E <cmd> … F7`. `7D` is the MIDI
 non-commercial manufacturer ID, so it cannot collide with real gear.
 
@@ -207,6 +185,9 @@ python tools/sysex_librarian.py request req.syx
 amidi -p hw:1,0,0 -s req.syx
 amidi -p hw:1,0,0 -d -t 60 > dump.syx
 ```
+
+Uploading in simple terms: When uploading your pattern bank to Nava via sysex, set in your
+preferred midi sysex program's settings - **Dump upload pause interval: 30ms**
 
 ⚠ **A restore has to be paced.** It is ~1,800 messages, and a USB MIDI interface
 takes them from the host about fifteen times faster than its DIN output can clock
@@ -229,15 +210,14 @@ quiet for 500 ms.
 
 ## Reporting a problem
 
-Open an [issue](../../issues) and include:
+Open an [issue](../../issues) and please include:
 
-- what you pressed, in order, and what happened
+- what you pressed, in order if possible, and what happened
 - whether the sequencer was running, and at what tempo and scale
 - master or slave sync
 - the build stamp — config page 5 shows it
 
-"It glitched sometimes" is a real report and I would rather have it than not, but
-the sequence of presses is what makes it fixable.
+The sequence of presses is what makes it fixable.
 
 ---
 
