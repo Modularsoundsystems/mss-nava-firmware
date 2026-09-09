@@ -1,0 +1,5 @@
+.pio/
+.vscode/
+backup/
+*.hex
+*.elf
