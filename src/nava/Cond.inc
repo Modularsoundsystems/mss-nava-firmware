@@ -188,8 +188,7 @@ void LinkButtons()
   }
 
   if (encBtn.justPressed){
-    curIndex++;
-    if (curIndex >= 3) curIndex = 0;        // source, target, rule
+    curIndex = CurIndexStep(curIndex, 3);   // [7C] target, rule, source
     needLcdUpdate = TRUE;
   }
 
@@ -253,8 +252,7 @@ void CondButtons()
   }
 
   if (encBtn.justPressed){
-    curIndex++;
-    if (curIndex >= MAX_CUR_POS) curIndex = 0;
+    curIndex = CurIndexStep(curIndex, MAX_CUR_POS);                    // [7C]
     needLcdUpdate = TRUE;
   }
 

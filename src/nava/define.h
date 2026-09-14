@@ -399,6 +399,20 @@ Button instLatchBtn, shiftLatchBtn;
 boolean instBtn;
 boolean shiftBtn;
 
+// [7C] One step of a field cursor, forwards or - with SHIFT - backwards.
+//
+// Every page with a row of fields walks them with the encoder press, and on a
+// four-field row overshooting by one costs three more presses to come back to.
+// SHIFT is the modifier that means "the other direction" everywhere else on the
+// panel, and SHIFT + the encoder PRESS was free: SHIFT + the encoder TURN is the
+// tempo in tenths and the roll rate, but nothing answered to the press.
+//
+// Wrapping both ways, so neither direction has an end to fall off.
+static inline byte CurIndexStep(byte i, byte n)
+{
+  return shiftBtn ? (byte)((i + n - 1) % n) : (byte)((i + 1) % n);
+}
+
 boolean doublePush = 0; //flag that CH and CH_LOW button are pressed together                
 byte instOut[NBR_INST]=  {
   BD, BD, SD, SD, LT, LT, MT, MT, HT, HT, RM, HC, CH, CH, CRASH, RIDE};
@@ -663,6 +677,10 @@ boolean changeDir; //use to PING PONG change dir
 
 volatile byte dirRepeatBase  = 0;
 volatile boolean endMeasure;
+// [7B] Voices whose next step has already been sounded by the hand, and which
+// the sequencer must therefore not fire again on its way past. One step's life:
+// FireStep() applies it and clears it. See the note at the tap commit in Seq.inc.
+volatile unsigned int tapSuppress = 0;
 /*byte seqDir[MAX_SEQ_DIR][NBR_STEP]={//To do
  {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
  {15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0}

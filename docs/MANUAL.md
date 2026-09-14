@@ -936,7 +936,7 @@ on the display and the position on the step LEDs. Nothing loads until you let go
 — a record read per detent would turn the knob into a stutter.
 
 **Naming — `SHIFT`+`ENTER`.** Names the pattern, or the track in a track mode.
-Eleven characters. The encoder picks a character, the encoder press moves on, and
+Eleven characters. The encoder picks a character, the encoder press moves on — `SHIFT`+press moves back — and
 `<<` / `>>` nudge the cursor. The step LEDs mirror the cursor position, and a
 caret sits under the character being edited.
 

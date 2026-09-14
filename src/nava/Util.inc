@@ -237,8 +237,7 @@ void UtilButtons()
   }
 
   if (encBtn.justPressed){
-    curIndex++;
-    if (curIndex >= MAX_CUR_POS) curIndex = 0;
+    curIndex = CurIndexStep(curIndex, MAX_CUR_POS);                    // [7C]
     needLcdUpdate = TRUE;
   }
 

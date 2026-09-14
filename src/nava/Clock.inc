@@ -324,11 +324,24 @@ void FireStep()
   // A note tapped inside that window fires from a cap the tap handler has
   // already charged via SetMuxTrigMidi(), so its velocity is right too.
   evtStepValue = BuildStepWord(curStep);
+
+  // [7B] ...and take back out of it anything the hand has already played.
+  //
+  // A tap is quantised to tapStepCount, which runs half a step ahead of the
+  // playhead - so a pad hit in the second half of a step is written to the step
+  // that has NOT fired yet. The hit sounds immediately under your finger, the
+  // rebuild above then finds it in the pattern, and the sequencer fires the same
+  // voice again half a step later. Two hits, 60 ms apart at 120 BPM: a flam you
+  // did not ask for, on every tap that lands in the back half of a step.
+  evtStepValue &= ~tapSuppress;
   const unsigned int am = ActiveMute();                                                         // [B-02]
 
-  evtChOn = !LaneSilent(CH) && bitRead(evtCondMask, CH) &&
+  // [7B] The hat reads its lanes directly rather than through the word above, so
+  // the suppression has to be asked here too - otherwise a tapped CH would be
+  // taken out of evtStepValue and still articulate the shared voice.
+  evtChOn = !LaneSilent(CH) && bitRead(evtCondMask, CH) && !bitRead(tapSuppress, CH) &&
             bitRead(pattern[ptrnBuffer].inst[CH], LaneIndex(CH, curStep)) && !bitRead(am, CH);
-  evtOhOn = !LaneSilent(OH) && bitRead(evtCondMask, OH) &&
+  evtOhOn = !LaneSilent(OH) && bitRead(evtCondMask, OH) && !bitRead(tapSuppress, OH) &&
             bitRead(pattern[ptrnBuffer].inst[OH], LaneIndex(OH, curStep)) && !bitRead(am, OH);
 
   if (evtChOn && evtOhOn){
@@ -337,6 +350,9 @@ void FireStep()
   }
   if (!evtChOn) evtStepValue &= ~((unsigned int)1 << CH);
   if (!evtOhOn) evtStepValue &= ~((unsigned int)1 << OH);
+  // [7B] Spent. One step's life exactly: set while this step was pending, used
+  // as it fires, gone before the next one can inherit it.
+  tapSuppress = 0;
   evtTrigOut = !LaneSilent(TRIG_OUT) && bitRead(evtCondMask, TRIG_OUT) &&
                bitRead(pattern[ptrnBuffer].inst[TRIG_OUT], LaneIndex(TRIG_OUT, curStep));
   evtExtInst = !LaneSilent(EXT_INST) && bitRead(evtCondMask, EXT_INST) &&

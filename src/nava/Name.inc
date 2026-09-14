@@ -78,9 +78,11 @@ void NameEditExit()
 // run of encoder presses silently typed a row of letters. "Start from the last
 // letter" is now a property of the *encoder*, not of the cell - see
 // NameEditEncoder(), which begins from nameLastIdx when the cell is blank.
+// [7C] SHIFT sends it the other way, as it does on every other cursor. << and >>
+// still nudge it too - this is for the hand that is already on the encoder.
 void NameCursorAdvance()
 {
-  nameCursor = (byte)((nameCursor + 1) % NAME_LEN);
+  nameCursor = CurIndexStep(nameCursor, NAME_LEN);
   needLcdUpdate = TRUE;
 }
 
@@ -102,7 +104,7 @@ void NameEditButtons()
     nameCursor = (byte)((nameCursor + NAME_LEN - 1) % NAME_LEN);
     needLcdUpdate = TRUE;
   }
-  if (fwdBtn.justPressed) NameCursorAdvance();
+  if (fwdBtn.justPressed) nameCursor = (byte)((nameCursor + 1) % NAME_LEN);   // [7C] always forward
 
   // Encoder press advances too, so a name can be typed without moving a hand
   // off the encoder: turn to pick a letter, press to move on.

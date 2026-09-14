@@ -104,6 +104,7 @@ Settings change live on pages 1 to 4; **saving still waits for the stop.**
 | `NUM`+step | select track | TRKW |
 | step | select track | TRKP |
 | encoder press | move the field cursor on any page with one | all |
+| `SHIFT`+encoder press | ...the other way — walks the cursor back | all |
 | MIDI program change | select that pattern, 0 = A01 … 127 = H16 | not TRKP/TRKW **3I** |
 
 ---

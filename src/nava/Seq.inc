@@ -121,8 +121,7 @@ void SeqParameter()
 
   //-------------------Encoder button---------------------------
   if(encBtn.justPressed && !PanelBusy()){                                         // [F26][F25]
-    curIndex++;
-    if (curIndex >= MAX_CUR_POS)  curIndex = 0;
+    curIndex = CurIndexStep(curIndex, MAX_CUR_POS);                               // [7C]
     needLcdUpdate = TRUE;
   }
   // [3D] Any transport or mode button leaves whatever page is open. A page you
@@ -224,6 +223,7 @@ void SeqParameter()
     stopBtn.counter = 0;
     shufPolarity = 0;//Init shuffle polarity
     swingPos = SWING_SLOTS;                                                        // [F19] drop any group still pending
+    tapSuppress = 0;                                                              // [7B]
     for (byte z = 0; z < NBR_INST; z++) lanePhase[z] = 0;                          // [F27]
     lanePhaseFresh = TRUE;
     // [B-07] Anything armed belongs to the phase we just abandoned. Without
@@ -263,6 +263,7 @@ void SeqParameter()
       isStop = TRUE;
       isRunning = FALSE;
       rollMask = 0;                               // [F11] no roll outlives the transport
+      tapSuppress = 0;                            // [7B] nor a pending tap suppression
       swingPos = SWING_SLOTS;                     // [F19] nor a swung group still in the air
       muxArmedForNext = FALSE;                    // [B-07] discard the armed step
       MIDI.sendRealTime(Stop);//;MidiSend(STOP_CMD);
@@ -1359,7 +1360,16 @@ void SeqParameter()
         }//END FOR LOOP
       }
 
-      if (endMeasure){//Update pattern at the end of measure to not get a double trig
+      // [7B] This does NOT run at the end of the measure, and has not since the
+      // first bar line of the session: endMeasure is set in Clock.inc and never
+      // cleared, as [F4] above already found. So a tap reaches the pattern on the
+      // next loop pass, a millisecond or two after your finger - which is the
+      // behaviour to keep (the LEDs show the take as you play it, and nothing is
+      // lost if you stop mid-bar), but it is not the behaviour this guard was
+      // named for, and the double trig it was meant to prevent came back.
+      //
+      // It is prevented here instead, precisely and for one step only.
+      if (endMeasure){
         // [F11] Take a copy with interrupts off: the roll driver writes tempInst
         // from the timer ISR, and reading-then-clearing it in two steps would
         // drop any hit that landed between them.
@@ -1381,6 +1391,21 @@ void SeqParameter()
         for (byte inst = 0; inst < NBR_INST; inst++){
           if (!ti[inst]) continue;
           StepAddPlain(inst, ti[inst]);
+
+          // [7B] Did this tap land on the step that is about to fire? If so the
+          // hand has already sounded it and the sequencer must not sound it again.
+          //
+          // muxArmedForNext is exactly the right question: it is true only in the
+          // second half of a step, which is the only half where tapStepCount has
+          // run ahead of the playhead and a tap can be written to a step still
+          // waiting to fire. In the first half the tap lands on the step that has
+          // just gone, there is nothing to collide with, and nothing is armed.
+          if (muxArmedForNext && bitRead(ti[inst], LaneIndex(inst, nextStepIndex))){
+            uint8_t sreg = SREG;
+            cli();
+            tapSuppress |= ((unsigned int)1 << inst);
+            SREG = sreg;
+          }
 
           // [3R] Nothing to grow. F27 stretched the lane to reach a tap that had
           // landed outside its span - because taps were written at the master step
