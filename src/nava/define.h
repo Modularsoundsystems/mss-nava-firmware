@@ -11,7 +11,7 @@
 // read from one place. Bump FW_VERSION with anything that changes the EEPROM
 // format, so a mismatched pattern bank can be spotted from the front panel.
 #define FW_NAME     "MSS NAVA"
-#define FW_VERSION  "1.0"
+#define FW_VERSION  "1.0.1"
 // Stamped by tools/gitrev.py at build time. A trailing '+' means the tree had
 // uncommitted changes. See the splash screen.
 #ifndef FW_BUILD
