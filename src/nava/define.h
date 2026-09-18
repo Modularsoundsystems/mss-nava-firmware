@@ -608,7 +608,7 @@ seq;
 #define PASTE_SETUP 0x08
 #define PASTE_NAME  0x10
 #define PASTE_EXT   0x20
-#define PASTE_EUCL  0x40
+#define PASTE_LANE  0x40
 #define PASTE_COND  0x80
 // Everything but the name by default: pasting content into a pattern should
 // not rename it unless that was asked for.

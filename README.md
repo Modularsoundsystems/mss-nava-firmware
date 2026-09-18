@@ -1,8 +1,10 @@
-# MSS NAVA Firmware 1.0
+# MSS NAVA Firmware
 
 [![Watch the demo](https://img.youtube.com/vi/A_0uRR-4RT0/hqdefault.jpg)](https://youtu.be/A_0uRR-4RT0)
 
 ▶ **[Watch the demo](https://youtu.be/A_0uRR-4RT0)**
+
+⬇ **[Download the latest firmware](../../releases/latest)** — one `.hex` file, no build needed.
 
 A replacement firmware for the **E-licktronic NAVA / NAVA Extra 9**. It is based
 on v1.028beta, fixes a long list of bugs — including the timing jitter and the
@@ -132,7 +134,7 @@ Ready-made `.hex` files are on the [Releases](../../releases) page. That is all
 most people need.
 
 ```
-avrdude -c stk500v1 -P COM8 -b 19200 -p m1284 -U flash:w:MSS-NAVA-1.0.hex:i
+avrdude -c stk500v1 -P COM8 -b 19200 -p m1284 -U flash:w:MSS-NAVA-1.0.1.hex:i
 ```
 
 <details>
@@ -288,6 +290,16 @@ will drop a transfer this size.
 
 After a restore the NAVA reloads the current pattern by itself once the transfer
 has been quiet for half a second.
+
+---
+
+## Enjoy
+
+That is everything. It exists so you spend less time fighting the panel and
+more time playing it.
+
+If you make something with it, we would like to hear it. And if you flash it
+and it just works, say so too — that is as useful to know as a bug.
 
 ---
 

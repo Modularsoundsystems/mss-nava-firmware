@@ -1,13 +1,13 @@
 # NAVA Extra 9 — User Manual
 
-Firmware **2.0-dev**, a fork of e-licktronic's NAVA v1.028beta.
+**MSS NAVA Firmware 1.0.1**, based on e-licktronic's NAVA v1.028beta.
 
-This manual covers everything the firmware does, from the stock TR-909-style core
-outwards. It is the reference for *what the machine does*;
-[05-SHORTCUTS.md](05-SHORTCUTS.md) is the same ground indexed by key combination,
-and is the faster lookup once you know what you are looking for.
+This manual explains everything the firmware does, starting from the original
+TR-909-style core and working outwards. It tells you *what the machine does*;
+[SHORTCUTS.md](SHORTCUTS.md) lists the same things by key combination and is the
+faster lookup once you know what you are looking for.
 
-Every screen in the firmware is drawn in §16.
+Every screen is drawn next to the section that describes it.
 
 ---
 
@@ -24,13 +24,13 @@ Every screen in the firmware is drawn in §16.
 9. [Patterns, banks and groups](#9-patterns-banks-and-groups)
 10. [Tracks](#10-tracks)
 11. [Naming and browsing](#11-naming-and-browsing)
-13. [Conditions and links](#13-conditions-and-links)
-14. [Performance](#14-performance)
-15. [Configuration](#15-configuration)
-16. [Screens with no page of their own](#16-screens-with-no-page-of-their-own)
-17. [Boot-time functions](#17-boot-time-functions)
-18. [MIDI](#18-midi)
-19. [Keeping this file current](#19-keeping-this-file-current)
+12. [Conditions and links](#12-conditions-and-links)
+13. [Performance](#13-performance)
+14. [Configuration](#14-configuration)
+15. [Screens with no page of their own](#15-screens-with-no-page-of-their-own)
+16. [Boot-time functions](#16-boot-time-functions)
+17. [MIDI](#17-midi)
+18. [Enjoy](#18-enjoy)
 
 ---
 
@@ -40,18 +40,19 @@ Every screen in the firmware is drawn in §16.
 step pads, a rotary encoder with a push switch, and a 24LC1025 EEPROM holding 128
 patterns, 16 tracks and the global setup.
 
-**The one thing to know.** Everything this fork adds sits on top of the stock
-panel as a chord. Nothing that worked on a stock NAVA has moved. If a combination
-in this manual does nothing on your machine, it is a bug — there is one firmware
-and everything in here is always available.
+**The one thing to know.** Everything this firmware adds is a key combination on
+top of the original panel. Nothing that worked on an original NAVA has moved. If
+a combination in this manual does nothing on your machine, it is a bug — there
+is one firmware and everything in here is always available.
 
-**Two grammars.** `SHIFT` + a key means the orange word printed under it on the
-panel. `INST` + a key opens the page about that thing. Nothing else opens a page,
-and `SHIFT` never means anything the panel does not say.
+**Two simple rules.** `SHIFT` + a key means the orange word printed under it on
+the panel. `INST` + a key opens the page about that thing. Nothing else opens a
+page, and `SHIFT` never means anything the panel does not say.
 
-**Saving is manual.** Edits live in RAM until you press `ENTER`. The `ENTER` LED
-blinks whenever there is unsaved work. Changing pattern discards unsaved edits
-without asking, which is stock behaviour and worth remembering.
+**Saving is manual.** Edits live in memory until you press `ENTER`. The `ENTER`
+LED blinks whenever there is unsaved work. Changing pattern throws away unsaved
+edits without asking — the original firmware did the same, and it is worth
+remembering.
 
 ---
 
@@ -74,35 +75,14 @@ without asking, which is stock behaviour and worth remembering.
 | `TEMPO` | hold to show tempo; tap ×4 for tap tempo |
 
 `TAP`, `DIR` and `GUIDE` act on **release**, and only if no pad joined them. That
-is what lets each of them carry a chord without doing its own job on the way in.
+is what lets each of them be part of a key combination without doing its own job
+on the way in.
 On this panel `<<` and `>>` are the direct legends of the `TAP` and `DIR` keys.
 
-`GUIDE` is stricter still, because it is the busiest key on the panel. **The
-metronome is what it means when it means nothing else.** Four things take the
-press away from it:
-
-- a modifier alongside it — `SHIFT` or `INST`, in either release order;
-- a hold rather than a tap;
-- the single press that releases a latch, which is the only way out of one;
-- **an effect running, or having run in the last two seconds.** Effects have
-  priority. A tap while one is going does nothing at all: it will not toggle the
-  metronome, and it will not cut the effect short either — an effect ends at the
-  bar line and no key press moves that. The two seconds afterwards matter as
-  much: leaving the latched menu is one press, so the *next* press is a
-  technically idle `GUIDE` while your hand is still in the middle of using the
-  effects. The window reads those as one continuous gesture rather than two that
-  happen to share a key. The window is about eight tenths of a second.
-
-So to toggle the metronome, `GUIDE` has to be idle — nothing held, nothing
-latched, nothing running.
-
-**Latching the effects menu switches the metronome off.** Refusing to toggle it
-was not enough: one already running carried on underneath the effects, which is
-both of the key's jobs happening at once. A double-tap is a declaration that
-`GUIDE` is the effects key now, so it takes the key's other job with it. It stays
-off when you leave the latch — putting a click back under your hands at the end of
-a performance gesture is the worst moment to be surprised by one, and it is a
-single tap away once the key is idle again.
+`GUIDE` has three jobs, so a plain tap only means *metronome* when nothing else
+is going on. A tap with `SHIFT` or `INST` held is a different key. Holding
+`GUIDE` down instead of tapping it is not a tap. Either of those spends the
+press, and the metronome stays as it was.
 
 ### Modifiers — held, not pressed
 
@@ -117,9 +97,7 @@ The **top right of the home screens** names whichever modifiers are in play —
 **held or latched**, since either is a reason the pads are doing something other
 than what the mode says. Up to three letters in cells 13–15: `S`hift, `I`nst,
 `C`lear, shu`F`, `L`aststep, `G`uide, always in that order so a key keeps its
-place. Four or more and the third cell becomes `*`. While an effect is running
-the slot number takes two of those cells back and the zone collapses to one,
-with `*` for more than one.
+place. Four or more and the third cell becomes `*`.
 
 **`LASTSTEP` and `SHUF` do not latch at all.** While `SHUF` is down pads 1–7 set
 the pattern shuffle and 9–16 the flam interval, both absolutely and both audible
@@ -133,8 +111,9 @@ pattern is not one a latch should unlock. Both of its gestures — `LASTSTEP`+pa
 and `LASTSTEP`+encoder — are held.
 
 **`GUIDE` does not latch.** `INST`+`GUIDE` walks conditions → links → out, which
-is the same key pressed twice in quick succession — a double tap by every measure
-the firmware has — so cycling those pages latched the effect menu underneath them.
+means pressing the same key twice in quick succession — exactly what a double
+tap is. A key you press twice on purpose cannot also be a key that latches on a
+double tap.
 
 **A latched `SHIFT` or `INST` owns `PLAY` and `STOP`.** Under either of them, held
 or latched, the transport keys belong to that layer and do not start or stop:
@@ -150,7 +129,7 @@ key, one job, decided by what is down.
 
 **A latch never captures `PLAY` or `STOP` for a *third* meaning.** They read the
 physical key for everything else, so
-a latched `SHIFT` gives you every one of its chords on the pads and still lets
+a latched `SHIFT` gives you every one of its combinations on the pads and still lets
 the transport answer. This matters more than it sounds: walking the config pages
 is `SHIFT`+`TEMPO` pressed over and over, two of which inside the double-tap
 window latch `SHIFT` without anyone deciding it should be — and from there both
@@ -164,7 +143,7 @@ the moment it is let go, so latching them would shift the pattern twice on the
 way in.
 
 `CLEAR` has one deliberate hole: **erasing under the playhead, and `CLEAR`+`PTRN`,
-still need a physical hold.** A latch may arm a destructive chord but must not
+still need a physical hold.** A latch may arm a destructive combination but must not
 sustain a destructive act, and a pattern wiped by a latch nobody remembered
 setting is the one outcome no blinking LED makes acceptable.
 
@@ -177,8 +156,8 @@ than one voice twice. What they mean depends on what the pads are doing:
 |---|---|---|
 | **playing or erasing** a voice | **both pads together**, always | tap record, the roll, `CLEAR`+pads, `CLEAR`+`INST`+pads |
 
-Where a pad **plays or erases**, the chord is not a convention to pick — it is
-the gesture itself. It is the chord you play an open hat with, and reading it as
+Where a pad **plays or erases**, the key combination is not a convention to pick — it is
+the gesture itself. It is the combination you play an open hat with, and reading it as
 two closed hats would be reading the hand wrong. That never changes.
 
 Where a pad only **names** a voice, both answers are defensible and the choice
@@ -192,7 +171,7 @@ is a habit, so `oh ` on config page 2 decides:
 `2nd` is the default because ten of eleven voices already take one press, and it
 sidesteps an artifact `BTH` cannot avoid: two pads never land in the same scan,
 so under `BTH` the first pad down briefly names the *closed* hat before the
-chord completes. On a page that only highlights a voice that is a flicker; it is
+combination completes. On a page that only highlights a voice that is a flicker; it is
 the same mechanism that used to delete hi-hat steps.
 
 **The mute row is not affected either way.** It has always had one pad per lane,
@@ -226,7 +205,7 @@ playhead blinks through whichever of those is showing.
 | `PLAY` | start from step 1 |
 | `STOP` | stop; again to continue from where it stopped |
 | `SHIFT`+`PLAY` | arm / disarm tap recording. The `TAP` LED blinks when armed |
-| `INST`+`PLAY` | **nothing** — blocked, so a hand reaching for an `INST` chord cannot start the sequencer |
+| `INST`+`PLAY` | **nothing** — blocked, so a hand reaching for an `INST` combination cannot start the sequencer |
 | `CLEAR`+`PTRN` | clear the whole pattern, running or stopped |
 | `TEMPO` held | show tempo; encoder sets BPM; **pads become a live trigger monitor** |
 | `SHIFT`+encoder | set BPM in tenths |
@@ -247,8 +226,7 @@ which the step LEDs cannot give — they show one lane's sixteen steps, which is
 right while you are editing that lane and no answer at all once the lanes have
 their own lengths and have parted company with the bar and with each other.
 
-`SHIFT`+`TEMPO` and `INST`+`TEMPO` are unaffected: those are the config pages and
-the fill page, and both want the pads for themselves.
+`SHIFT`+`TEMPO` still opens the config pages as usual.
 
 ---
 
@@ -303,7 +281,7 @@ current bank; two pads together select a *group* that plays in sequence.
 
 **A pad only changes the pattern when nothing else is held.** `SHIFT`, `INST`,
 `SHUF`, `LASTSTEP`, `SCALE`, `NUM`, `TEMPO`, `TRK`, `PTRN` and `ENTER` all block
-it, and so does any page or held chord. In step mode those keys have pad meanings
+it, and so does any page or held combination. In step mode those keys have pad meanings
 of their own; in play mode they have none, so a pad under them used to fall
 straight through to a pattern change — and that is the one action here you cannot
 take back, because the pattern you were playing has already left the buffer by the
@@ -452,7 +430,7 @@ and an outlined square on others.
 CH and OH are **one physical voice**. The trigger fires it and a second line
 picks the decay, so at a step where both lanes carry a note only one can sound.
 
-This firmware keeps **both** lanes' data. Stock firmware deleted the loser's
+This firmware keeps **both** lanes' data. The original firmware deleted the loser's
 note, which is why editing one hi-hat lane used to destroy work in the other.
 Here nothing is deleted and `hhP` on config page 2 decides which is heard —
 flip it and the other lane comes straight back.
@@ -504,7 +482,7 @@ and zero was being sent as a note — note 12 once the octave offset is added �
 any gap in a stack came out as a stream of the same low note. The cost is that a
 stack cannot hold pad 1 at octave 0: that is MIDI note 12, a C five octaves below
 middle C, and the alternative was a stored-format change that would have broken
-compatibility with stock firmware.
+compatibility with the original firmware.
 
 **An empty stack plays nothing.** It used to play note 12 on every trig — `extLength`
 is the index of the last note, so 0 means “one note in slot 0”, and an emptied
@@ -549,9 +527,11 @@ second letter in lower case while armed. The interval is set on the `SHUF` page.
 | pad, with flam armed | weak flam → strong flam → off |
 | pad, in single-trigger mode | on → off, always full velocity |
 
-Single-trigger mode (`sTr`, config page 1) makes every instrument two-state,
-which is faster for entering a part live. OH, RIDE, CRASH, total accent, trigger
-out and EXT are always two-state.
+Single-trigger mode (`sTr`, config page 1) makes every instrument on/off with no
+weak or strong, which is faster for entering a part live. Total accent, trigger
+out and EXT are always on/off. So is the open hat. **Crash and ride are on/off
+unless `cym` on config page 1 is `ON`**, which gives them weak and strong like the
+drums — see [Page 1](#page-1--behaviour).
 
 ### Tap mode
 
@@ -711,16 +691,16 @@ stands aside while a pattern change is queued — the bar line is about to repla
 everything anyway.
 
 **Held `CLEAR` erases from the moment you press it**, and gives up for good if
-`INST` joins the press. `CLEAR`+`INST`+pads is a chord and `CLEAR` goes down
+`INST` joins the press. `CLEAR`+`INST`+pads is a combination and `CLEAR` goes down
 first, so for the moment before `INST` arrives the machine cannot tell the two
 gestures apart — it erases, and then puts the step back when `INST` shows up
 promptly, undo level and all. Reach for `INST` slowly, well after the erasing
 has started, and it is taken as two separate gestures: the erasing stands.
 
-**Instrument delete waits for the pads to come up**, because `OH` is the chord
+**Instrument delete waits for the pads to come up**, because `OH` is the combination
 13+14 and two pads never arrive in the same scan. Acting on each press would
 name `CH` first — wiping the lane you were reaching past — and `OH` second. The
-pads are collected while the chord is held and the instruments worked out once,
+pads are collected while the combination is held and the instruments worked out once,
 from all of them, so the gesture costs exactly one undo level.
 
 It follows `mte` on config page 2, the same as a single mute and as solo: with
@@ -798,7 +778,7 @@ identical, so a bank could carry chains nobody remembered making.
 
 Nothing needs cleaning up. The two bytes are zeroed as each record loads, so a
 bank made by an older build cleans itself as you use it — and the record format
-is unchanged, so patterns still travel both ways with stock firmware.
+is unchanged, so patterns still travel both ways with the original firmware.
 
 **When a change lands** is set by `pCh` on config page 1: `SYN` waits for the bar
 line, `FRE` changes immediately. The incoming pattern is loaded the moment you
@@ -810,19 +790,18 @@ Copy and paste both flash a message showing the mask they are working through:
 ```
 ┌────────────────┐
 │PASTED   into A │
-│T V F S n E U C │
+│T V F S n X E C │
 └────────────────┘
 ```
 
 Upper case is carried, lower case is not. **The pads toggle the mask while the
-chord is held**, and the first eight LEDs show it too — lit is carried — so the
+combination is held**, and the first eight LEDs show it too — lit is carried — so the
 one moment you most want to change it is no longer the one moment you could only
 read it.
 
 **Let go of `SHIFT` and the second key holds it open.** Keep `BANK` or `MUTE` down
 and the mask stays on screen with the pads still live, which gives you a whole
-hand back for them — the same thing `INST`+`TEMPO` does for the fill page. Release
-that second key to finish.
+hand back for them. Release that second key to finish.
 
 This is the only editor for the mask; there is no config page for it. **`SHIFT`+
 `BANK` is the side-effect-free way in** — a copy only overwrites the copy buffer,
@@ -842,11 +821,24 @@ What a paste transfers is set once and then forgotten, and the
 failure it produces is silent: the pattern arrives with its notes and none of its
 feel and nothing says why. This is that answer, at the moment it matters.
 
-**Selective paste.** Config page 3 chooses which field groups a paste carries —
-trigs, velocities, flams, setup, name, external notes, lane parameters,
-conditions. The mask is applied at paste time, not copy time, so one copy can be
-pasted as several different subsets: take a pattern's feel without its notes, or
-its notes without its name.
+**What the letters mean.** The eight pads are the eight groups, left to right:
+
+| Pad | Letter | Carries |
+|---|---|---|
+| 1 | `T` | trigs — which steps are on |
+| 2 | `V` | velocities (weak / strong) |
+| 3 | `F` | flams |
+| 4 | `S` | setup — shuffle, swing, scale, length, per-instrument settings |
+| 5 | `N` | name |
+| 6 | `X` | external MIDI notes |
+| 7 | `E` | each instrument's own length and speed |
+| 8 | `C` | conditions and links |
+
+Everything except the name is carried by default.
+
+The mask is applied when you paste, not when you copy, so one copy can be pasted
+as several different subsets: take a pattern's feel without its notes, or its
+notes without its name.
 
 ### Pattern utilities — `INST`+`PTRN`
 
@@ -886,7 +878,7 @@ every pattern in the range — through the same paste mask a single paste uses.
 So *“give patterns 9 to 40 the same choke rules”* is one gesture instead of
 thirty-two visits to a page.
 
-Set the mask first, from inside the copy or paste chord — hold it and the pads are
+Set the mask first, from inside the copy or paste combination — hold it and the pads are
 the mask. See §9.
 Only what the mask selects is written; everything else in each pattern survives,
 because this is the same overlay a single paste performs, from the same code.
@@ -975,7 +967,7 @@ exactly as a pad press does.
 
 ---
 
-## 13. Conditions and links
+## 12. Conditions and links
 
 `INST`+`GUIDE` walks conditions → links → out.
 
@@ -1040,7 +1032,7 @@ that has already started, so the answer is not to start it.
 
 ---
 
-## 14. Performance
+## 13. Performance
 
 ### Solo and mute
 
@@ -1061,6 +1053,8 @@ backward, ping-pong, random.
 
 ---
 
+## 14. Configuration
+
 ### Config pages
 
 In page order. Upper case on the top line is the field the encoder is on.
@@ -1068,30 +1062,24 @@ In page order. Upper case on the top line is the field the encoder is on.
 ```
      1 behaviour            2 hi-hats
 ┌────────────────┐   ┌────────────────┐
-│PCh sTr mut     │   │Hhp mte oh      │
-│SYN OFF OFF     │   │OH  C/O 2nd     │
+│PCh sTr mut cym │   │Hhp mte oh      │
+│SYN OFF OFF OFF │   │OH  C/O 2nd     │
 └────────────────┘   └────────────────┘
 
-     3 encoder speed        4 paste mask
-┌────────────────┐   ┌────────────────┐
-│Rol fil bpm ptn │   │paste transfers │
-│x1  x1  /8  x1  │   │T V F S n X E C │
-└────────────────┘   └────────────────┘
-
-     5 sync and MIDI        6 SysEx dump
+     3 sync and MIDI        4 SysEx dump
 ┌────────────────┐   ┌────────────────┐
 │Syn bpm mTX mRX │   │SysEx dump      │
 │MST 120 1   1   │   │everything  HOLD│
 └────────────────┘   └────────────────┘
 
-     7 firmware
+     5 firmware
 ┌────────────────┐
-│3.0-dev 14Aug26 │
-│build f319388   │
+│1.0.1   18Sep26 │
+│build 7eaa926   │
 └────────────────┘
 ```
 
-`SHIFT`+`TEMPO` walks pages 1 → 2 → … → 6 → out. Grouped by subject, then
+`SHIFT`+`TEMPO` walks pages 1 → 2 → 3 → 4 → 5 → out. Grouped by subject, then
 ordered by how often a hand reaches for them mid-set — so the rig setup is at
 the back and the firmware page is last of all.
 
@@ -1117,7 +1105,7 @@ and on every pattern as it loads. So the setting means the same thing for a patt
 you wrote last week as for one you write now, and nothing you recorded with it on
 can leave a quiet cymbal behind after you switch it off.
 
-Off by default — the stock machine has never had it, and a firmware update that
+Off by default — the original machine has never had it, and a firmware update that
 changed how your existing patterns sound would be the wrong kind of surprise.
 
 **Both cymbals are timed like the hi-hat.** Their level is set at the moment the
@@ -1150,7 +1138,7 @@ a switch for it would have been a control that does nothing.
 `SHIFT`+`PLAY` arms recording; **`SHIFT`+`STOP` makes that recording cyclic.**
 The tap-mode display says `CYC` instead of `REC` while it is on. `STOP` on its
 own still stops — the stop key declines the press while `SHIFT` is down, so the
-chord cannot arm the mode and halt the take in the same motion.
+combination cannot arm the mode and halt the take in the same motion.
 
 It is on a key rather than in the menu because it is a decision you make for the
 take you are about to play, not a preference you set once. For the same reason it
@@ -1173,19 +1161,19 @@ if you simply stop. The voices you are not touching are untouched.
 It is per voice, not per pattern. Replacing the hats leaves the kick alone even
 though both are in the same bar.
 
-**The hi-hats keep out of each other's way.** Tapping the `OH` chord replaces the
+**The hi-hats keep out of each other's way.** Tapping the `OH` pair replaces the
 open hat and leaves the closed hat alone.
 
-This is harder than it sounds. The open hat is a two-pad chord, and two fingers
+This is harder than it sounds. The open hat is a two-pad combination, and two fingers
 never land in the same scan — so the first pad down is indistinguishable from a
 closed-hat tap, and by the time the second arrives the closed hat has already
 been replaced. Nothing downstream can tell the difference, because as far as the
 machine could see at that instant, there was none. So the closed hat's lane is
-copied before it is wiped and handed back if the chord completes within about a
+copied before it is wiped and handed back if the combination completes within about a
 sixteenth. A destructive guess, made reversible, rather than a delay on every
 hi-hat tap waiting to find out what your hand meant.
 
-### Page 4 — sync and MIDI
+### Page 3 — sync and MIDI
 
 | Field | Values |
 |---|---|
@@ -1202,14 +1190,14 @@ answering its notes, and a pattern dump or restore still works either way.
 That split is not arbitrary: it is exactly the line between *channel* messages and
 *system* messages, which is the same line the MIDI standard draws.
 
-### Page 5 — SysEx dump
+### Page 4 — SysEx dump
 
 The encoder picks **everything**, **this pattern**, **all tracks** or **setup
 only**. `ENTER` **held** sends it — held rather than pressed because a plain
 `ENTER` on a config page means "save the setup", and because a full dump blocks
 the panel for about forty-six seconds.
 
-### Page 6 — firmware
+### Page 5 — firmware
 
 ```
 ┌────────────────┐
@@ -1257,10 +1245,10 @@ means one thing.
 
 ---
 
-## 16. Screens with no page of their own
+## 15. Screens with no page of their own
 
 **Every other screen is drawn beside the thing it belongs to** — the
-page in §12, the conditions page in §13, each mode's screen in §4, and so on. A
+links page and the conditions page in §12, each mode's screen in §4, and so on. A
 gallery of all of them in one place meant looking a page up twice: once to find
 out what it does and again to find out what it looks like. What is left here are
 the screens that are not a page at all — boot, the corner of the home line, and
@@ -1306,13 +1294,10 @@ need all four of their labels and you are not performing while you are on one.
 
 | Cell | Shows |
 |---|---|
-| 13 | the latched modifier: `S` shift · `I` inst · `C` clear · `F` shuf · `L` last step · `G` guide · `*` more than one · blank for none |
-| 14–15 | the running effect, as its pad number `01`–`16` · blank for none |
+| 13–15 | up to three held or latched modifiers: `S` shift · `I` inst · `C` clear · `F` shuf · `L` last step · `G` guide. Four or more and the third cell is `*`. Blank for none |
 
-These are the two things the panel cannot otherwise tell you. A latch is a mode
-you entered on purpose and will forget you are in — its own LED blinks, but only
-if you happen to look at that key. An effect has a number, and the number is what
-you want when you meant slot 12 and got slot 11.
+It is there because a latch is a mode you entered on purpose and will forget
+you are in — its own LED blinks, but only if you happen to look at that key.
 
 The tempo no longer needs `TEMPO` held to be seen; it is on the bottom line
 always. Holding `TEMPO` still shows it in the modes that do not carry it.
@@ -1366,7 +1351,7 @@ case is carried, lower case is not.
 
 ---
 
-## 17. Boot-time functions
+## 16. Boot-time functions
 
 Held from power-on.
 
@@ -1418,7 +1403,7 @@ on as though the bank were sound.
 
 ---
 
-## 18. MIDI
+## 17. MIDI
 
 **Clock.** Master sends; slave follows. Under an external clock the four internal
 ticks belonging to each clock byte are **spread across the measured interval**
@@ -1461,7 +1446,7 @@ requires.
 
 **Notes out.** The `EXT` lane sends notes on the TX channel — see §5.
 
-**Program change selects a pattern** (**3I**). There are 128 patterns and 128
+**Program change selects a pattern**. There are 128 patterns and 128
 program numbers, so the whole bank is reachable in one message and **bank select
 is not used at all** — there is nothing left for it to do. Program `n` is the
 `n`th pattern:
@@ -1512,16 +1497,13 @@ place. Use ISP.
 
 ---
 
-## 19. Keeping this file current
+## 18. Enjoy
 
-This manual is part of the deliverable, not a snapshot. Any change that alters
-what the machine *does* — a new gesture, a moved binding, a changed screen, a
-different default — updates this file in the same commit, alongside
-[05-SHORTCUTS.md](05-SHORTCUTS.md) and
-[Feature-request-list.md](Feature-request-list.md).
+That is the whole machine. Everything above exists so that you spend less time
+fighting the panel and more time playing it.
 
-The screens in §16 are transcribed from the layout code in `src/nava/LCD.inc`.
-When a layout moves, the box moves with it.
+If you make something with it, we would like to hear it. If something in here
+is wrong, or a gesture does not do what this page says it does, open an
+[issue](../../issues) — a manual that disagrees with the machine is a bug like
+any other.
 
-[07-TEST-PLAN.md](07-TEST-PLAN.md) is the checklist for finding what is still
-wrong, organised by where this firmware has actually broken before.

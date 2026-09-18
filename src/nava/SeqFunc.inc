@@ -263,7 +263,7 @@ void PasteMaskInto(Pattern *d, const Pattern *s, byte m)
     memcpy(d->extNote, s->extNote, sizeof(d->extNote));
     d->extLength = s->extLength;
   }
-  if (m & PASTE_EUCL) memcpy(d->lane, s->lane, sizeof(d->lane));
+  if (m & PASTE_LANE) memcpy(d->lane, s->lane, sizeof(d->lane));
   if (m & PASTE_COND){
     memcpy(d->stepCond,     s->stepCond,     sizeof(d->stepCond));
     memcpy(d->instCondProb, s->instCondProb, sizeof(d->instCondProb));
