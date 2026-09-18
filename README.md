@@ -2,43 +2,43 @@
 
 [![Watch the demo](https://img.youtube.com/vi/A_0uRR-4RT0/hqdefault.jpg)](https://youtu.be/A_0uRR-4RT0)
 
-▶ **[Watch the demo](https://youtu.be/A_0uRR-4RT0)** — everything below:
+▶ **[Watch the demo](https://youtu.be/A_0uRR-4RT0)**
 
-An alternative firmware for the **E-licktronic NAVA / NAVA Extra 9**, built on
-v1.028beta. It fixes a long list of bugs — including the ones behind the
-timing jitter and unreproducible glitches and adds new features.
+A replacement firmware for the **E-licktronic NAVA / NAVA Extra 9**. It is based
+on v1.028beta, fixes a long list of bugs — including the timing jitter and the
+random glitches — and adds new features.
 
-**Target:** ATmega1284 @ 16 MHz · MightyCore, Standard pinout.
+**Chip:** ATmega1284 @ 16 MHz · MightyCore, Standard pinout.
 
-> **Your patterns are safe.** The EEPROM pattern format is unchanged from stock.
-> Patterns written by this firmware are readable by v1.028beta and the other way
-> round. Flashing does *not* touch the pattern EEPROM — but read
+> **Your patterns are safe.** The pattern storage format is the same as stock.
+> Patterns made with this firmware work on v1.028beta and the other way round.
+> Flashing does not touch the pattern memory — but read
 > [Before you flash](#before-you-flash) anyway.
 
 ---
 
 ## What it fixes
 
-**Trigger jitter**
-**Stack buffer overflows in the LCD code.**
-**Synced pattern changes land on the bar line.**
-**No dropped tick when you turn the tempo knob**
-**Encoder edits no longer bleed between fields.**
-**The hi-hat stops flamming between weak and strong hits.**
+- **Trigger timing jitter** that changed with how many voices were playing
+- **Memory overflows in the display code** that caused random glitches
+- **Pattern changes now land on the bar line** when synced
+- **No dropped tick** when you turn the tempo knob while playing
+- **Encoder edits stay in their own field** instead of leaking into others
+- **The hi-hat no longer flams** between weak and strong hits
 
-…and more, each one commented in place.
+…and more. Each fix is explained where it sits in the source.
 
 ## What it adds
 
 | | |
 |---|---|
 | **Undo and redo** | four levels, `SHIFT`+`CLEAR` and `SHIFT`+`INST`+`CLEAR` |
-| **Trig conditions** | play a step on the Xth of every Y bars, and/or at a probability |
-| **Links** | "this voice plays only when that one did / did not" — selective choke |
-| **Per-lane length** | seven steps against sixteen, and it stays there |
+| **Trig conditions** | play a step on the Xth of every Y bars, or at a probability |
+| **Links** | "this voice plays only when that one did / did not" |
+| **Per-lane length** | e.g. seven steps against sixteen, and it stays there |
 | **Pattern chains** | pick two pads and the range loops |
 | **Cyclic record** | play over a bar and it replaces last cycle's part |
-| **Per-instrument swing** | a swung hat over a straight kick |
+| **Per-instrument swing** | swing the hats over a straight kick |
 | **Flam** | on the five voices that can take it, with its own interval |
 | **Total accent** | on a lane of its own |
 | **Pattern utilities** | clear, move and paste ranges of patterns |
@@ -54,25 +54,86 @@ timing jitter and unreproducible glitches and adds new features.
 
 ---
 
+## What to install
+
+You need three things on a fresh computer. Everything is free.
+
+| | What | Why |
+|---|---|---|
+| 1 | **[Arduino IDE](https://www.arduino.cc/en/software)** | Turns an Arduino Nano into a programmer. It also comes with `avrdude` built in. |
+| 2 | **`avrdude`** | The program that actually writes the firmware. Already included with the Arduino IDE — see [Running avrdude](#running-avrdude) below for where it is. |
+| 3 | **A USB driver for your Nano** (Windows only, sometimes) | Genuine Nanos work out of the box. Cheap clones use a **CH340** chip and need [its driver](https://www.wch-ic.com/downloads/CH341SER_EXE.html). If the Nano does not show up as a COM port, this is why. |
+
+Optional:
+
+- **[PlatformIO](https://platformio.org/)** — only if you want to build the firmware from source. Most people just use the ready-made `.hex` file.
+- **A MIDI SysEx tool** for backing up patterns — [MIDI-OX](http://www.midiox.com/) on Windows, [SysEx Librarian](https://www.snoize.com/SysExLibrarian/) on Mac, `amidi` on Linux.
+
+### Running avrdude
+
+`avrdude` is a command-line program. You run it from a terminal, and you need to
+tell the terminal where it is.
+
+**Where it lives (installed with the Arduino IDE):**
+
+| | Path |
+|---|---|
+| Windows, Arduino IDE 2.x | `%LOCALAPPDATA%\Arduino15\packages\arduino\tools\avrdude\<version>\bin\avrdude.exe` |
+| Windows, Arduino IDE 1.8 | `C:\Program Files (x86)\Arduino\hardware\tools\avr\bin\avrdude.exe` |
+| Mac | `~/Library/Arduino15/packages/arduino/tools/avrdude/<version>/bin/avrdude` — or just `brew install avrdude` |
+| Linux | `sudo apt install avrdude` (Debian/Ubuntu) or `~/.arduino15/packages/arduino/tools/avrdude/<version>/bin/avrdude` |
+
+`<version>` is a folder like `6.3.0-arduino17` — look inside the `avrdude`
+folder and use whatever is there.
+
+**On Windows, the easiest way:** open the `bin` folder above in File Explorer,
+click the address bar, type `cmd` and press Enter. A terminal opens in that
+folder, and you can type `avrdude` commands directly.
+
+**One thing that catches everyone:** the Arduino IDE's copy of `avrdude` needs
+to be told where its config file is, or it fails with *"can't find avrdude.conf"*.
+Add `-C` pointing at the `etc` folder next to `bin`:
+
+```
+avrdude -C "..\etc\avrdude.conf" -c stk500v1 -P COM8 -b 19200 -p m1284 -v
+```
+
+Every `avrdude` command in this file assumes that `-C` is there when you use
+the Arduino copy. If you installed `avrdude` on its own (Homebrew, apt, or a
+[standalone release](https://github.com/avrdudes/avrdude/releases)), you can
+leave `-C` out.
+
+**Finding your COM port (Windows):** open Device Manager → *Ports (COM & LPT)*
+and plug the Nano in. Whatever appears is your port — this file uses `COM8` as
+an example, yours will probably be different. On Mac and Linux it is something
+like `/dev/tty.usbserial-XXXX` or `/dev/ttyUSB0`.
+
+---
+
 ## Before you flash
 
-**A flash write chip-erases the part.** Your *patterns* live in a separate I²C
-EEPROM that avrdude cannot reach, so they survive — but your *firmware* does not,
-and if anything goes wrong you want a way back.
+**Flashing erases the whole chip first.** Your *patterns* live on a separate
+memory chip and survive — but the *firmware* that is on there now does not, and
+if anything goes wrong you want a way back.
 
-1. **Read your existing firmware out first** and keep the file:
+1. **Save a copy of the current firmware first** and keep the file somewhere safe:
    ```
    avrdude -c stk500v1 -P COM8 -b 19200 -p m1284 -U flash:r:backup_original.hex:i
    ```
-2. **Back up your patterns** over SysEx once this firmware is running (see below),
-   or with a pattern-EEPROM reader before you start.
+2. **Back up your patterns** over SysEx once this firmware is running (see
+   [below](#pattern-backup-over-sysex)), or with a pattern-memory reader before
+   you start.
 
-Use `-p m1284p` if your part is the ATmega1284**P**.
+Use `-p m1284p` if your chip says ATmega1284**P** on it.
 
 ## Flashing
 
-Pre-built `.hex` files are on the
-[Releases](../../releases) page — that is all most people need.
+Ready-made `.hex` files are on the [Releases](../../releases) page. That is all
+most people need.
+
+```
+avrdude -c stk500v1 -P COM8 -b 19200 -p m1284 -U flash:w:MSS-NAVA-1.0.hex:i
+```
 
 <details>
 <summary>Building it yourself</summary>
@@ -85,99 +146,123 @@ pio run -t upload      # compile and flash
 ```
 
 `upload_protocol` in `platformio.ini` is set for **Arduino-as-ISP on COM8 at
-19200 baud**. Change the port to match your programmer.
+19200 baud**. Change the port to match yours.
 
-The build is warning-free under `-Wall`. Please keep it that way — `-Wall` is
+The build has no compiler warnings. Please keep it that way — the warnings are
 what found three of the bugs listed above.
 </details>
 
-### Using an Arduino Nano as the ISP programmer
+### Finding the programming header inside the case
 
-No dedicated programmer needed — a Nano (or any ATmega328 Arduino) works over
-its six-pin ICSP header.
+Open the case. On the main board, find the **ATmega1284** — the big 40-pin chip.
+Near it there is a **6-pin programming header**, two rows of three pins, usually
+labelled **ICSP** or **ISP** on the board.
+
+This is the standard AVR programming header. Looking at it with the label the
+right way up:
+
+```
+        ┌─────┬─────┐
+ MISO   │  1  │  2  │  VCC
+        ├─────┼─────┤
+ SCK    │  3  │  4  │  MOSI
+        ├─────┼─────┤
+ RESET  │  5  │  6  │  GND
+        └─────┴─────┘
+```
+
+**Pin 1 is marked** — a square solder pad where the others are round, a small
+dot or arrow printed next to it, or a notch in the outline. Find that mark
+first; everything else follows from it. Wire the five signals per the
+[connection table](#connections-arduino-nano--atmega1284) below, and leave
+pin 2 (`VCC`) unconnected.
+
+If your board has no header fitted — just six empty holes — you can either
+solder one in, or clip directly onto the chip's legs using the ATmega1284 pin
+numbers in the same table.
+
+### Using an Arduino Nano as the programmer
+
+You do not need a dedicated programmer. A Nano — or any Arduino with an
+ATmega328 — does the job.
 
 1. In the Arduino IDE: **File → Examples → 11.ArduinoISP → ArduinoISP**, and
-   upload it to the Nano as a normal sketch. This is what turns the Nano itself
-   into an `stk500v1` programmer at 19200 baud — the same protocol the
-   `avrdude` commands in this file already assume.
-2. **Add a 10 µF electrolytic capacitor between the Nano's `RESET` and `GND`
-   pins**, positive leg to `RESET`. Without it, the moment `avrdude` opens the
-   serial port the Nano's own bootloader sees the DTR reset pulse and resets
-   the Nano itself mid-transfer, instead of holding the *target* in reset.
-   Remove the capacitor afterwards if you want to reprogram the Nano.
-3. Wire per the [connection table](#connections-arduino-nano--atmega1284)
-   below.
-4. **Power the NAVA from its own supply**, not from the Nano. Switch it on
-   before you run `avrdude` — leave `RESET` disconnected on the NAVA side
-   until the wiring is otherwise complete, then connect it last.
-5. Confirm the programmer can see the chip before writing anything:
+   upload it to the Nano like any other sketch. This turns the Nano into a
+   programmer.
+2. **Put a 10 µF capacitor between the Nano's `RESET` and `GND` pins**, the
+   `+` leg on `RESET`. Without it, the Nano resets itself the moment `avrdude`
+   opens the port, instead of resetting the NAVA. Take it off again if you ever
+   want to reprogram the Nano.
+3. Wire it up per the table below.
+4. **Power the NAVA from its own power supply**, not from the Nano. Switch the
+   NAVA on before you run `avrdude`.
+5. Check that the programmer can see the chip before writing anything:
    ```bash
    avrdude -c stk500v1 -P COM8 -b 19200 -p m1284 -v
    ```
-   A signature readout (`1E 97 05` for the ATmega1284, `1E 97 06` for the
-   **1284P**) means the wiring is good. If it times out, check the reset
-   capacitor first — a missing one is the most common cause.
+   If you see `1E 97 05` (ATmega1284) or `1E 97 06` (ATmega1284**P**), the
+   wiring is right. If it times out, check the capacitor from step 2 first —
+   that is the usual cause.
 
-**Power notes**
+**About power**
 
-- The NAVA's panel, LEDs and analogue section draw more current than the
-  Nano's 5 V regulator is meant to supply, so **do not** tie the Nano's `5V` to
-  the NAVA's `VCC`. Power the NAVA from its own PSU and connect grounds only.
-- **A common ground between the Nano and the NAVA is not optional** — the SPI
-  signals (`MOSI`/`MISO`/`SCK`) are meaningless without a shared 0 V reference,
-  and without it programming will fail intermittently or not at all.
-- Programming reads and writes flash directly; it does not go through the
-  bootloader, so the NAVA's own firmware does not need to be running or even
-  valid for this to work.
+- **Do not connect the Nano's `5V` to the NAVA.** The NAVA draws more current
+  than the Nano can supply. Power it from its own supply and share only the
+  ground.
+- **The ground wire is not optional.** Without a shared ground the data lines
+  mean nothing and programming will fail.
+- Programming writes the chip directly. The NAVA's current firmware does not
+  need to be working for this to succeed.
 
 #### Connections: Arduino Nano ↔ ATmega1284
 
-Pin numbers below are the physical **DIP-40** package pins, matching the
-MightyCore **Standard** pinout this repo builds for (see
-[`platformio.ini`](platformio.ini)). If your board uses the TQFP-44 package
-instead, the signal names are the same but the pin numbers are not — check
-MightyCore's pinout diagram for that package.
+Chip pin numbers are for the **40-pin DIP** package (the big through-hole chip).
+If your board has the small square **TQFP-44** chip instead, the signal names
+are the same but the pin numbers are not — use the header instead.
 
-| Signal | Arduino Nano pin | ATmega1284 pin (DIP-40) | ATmega1284 signal |
-|---|---|---|---|
-| MOSI | `D11` | 6 | PB5 (MOSI) |
-| MISO | `D12` | 7 | PB6 (MISO) |
-| SCK | `D13` | 8 | PB7 (SCK) |
-| RESET | `D10` | 9 | RESET |
-| GND | `GND` | 11 *(or 31)* | GND |
+| Signal | Arduino Nano | ICSP header pin | ATmega1284 chip pin | Chip signal |
+|---|---|---|---|---|
+| MOSI | `D11` | 4 | 6 | PB5 (MOSI) |
+| MISO | `D12` | 1 | 7 | PB6 (MISO) |
+| SCK | `D13` | 3 | 8 | PB7 (SCK) |
+| RESET | `D10` | 5 | 9 | RESET |
+| GND | `GND` | 6 | 11 *(or 31)* | GND |
 
-The ATmega1284 has two `GND` pins (11 and 31) and they are tied together
-internally — either one works. Do **not** connect the Nano's `5V`/`VCC` pin to
-anything on the NAVA; the table above is deliberately five wires, not six.
+Five wires. **No `VCC` wire** — header pin 2 stays empty. The chip has two
+`GND` pins (11 and 31) and they are joined inside; either one works.
 
 ### Fuses
 
-If your boot section is empty — which it will be after any ISP write with chip
-erase — `BOOTRST=0` makes the CPU execute erased flash and wrap to `0x0000`.
-That happens to boot, but only by accident. Point reset at the application:
+After a chip erase the boot section is empty, and the stock fuse setting makes
+the chip start there anyway. It still works, but only by luck. One fuse change
+makes reset go straight to the firmware:
 
 ```bash
-# check the programmer talks to the chip first
+# make sure the programmer can see the chip
 avrdude -c stk500v1 -P COM8 -b 19200 -p m1284 -v
 
-# BOOTRST=1: hfuse 0xDC -> 0xDD. Nothing else changes.
+# change hfuse 0xDC -> 0xDD. Nothing else changes.
 avrdude -c stk500v1 -P COM8 -b 19200 -p m1284 -U hfuse:w:0xDD:m
 ```
 
-Reversible: write `0xDC` back if you ever obtain the original SysEx bootloader.
+You can undo this by writing `0xDC` back.
 
 | Fuse | Stock | Meaning |
 |---|---|---|
 | lfuse | `0xC7` | external crystal, CKDIV8 off |
 | hfuse | `0xDC` → `0xDD` | SPIEN on, JTAG off, BOOTRST |
-| efuse | `0xFD` | BOD 2.7 V |
+| efuse | `0xFD` | brown-out at 2.7 V |
 
 ---
 
 ## Pattern backup over SysEx
 
-The firmware speaks `F0 7D 4E <cmd> … F7`. `7D` is the MIDI
-non-commercial manufacturer ID, so it cannot collide with real gear.
+The firmware speaks `F0 7D 4E <cmd> … F7`. `7D` is the MIDI "non-commercial"
+manufacturer ID, so it cannot clash with real gear.
+
+**The short version:** when you *send* a pattern bank back to the NAVA, set your
+SysEx program's delay between messages to **30 ms**. Without it, most of the
+transfer is silently lost.
 
 ```bash
 # build the "dump everything" request, send it, capture the reply (~143 KB, ~46 s)
@@ -186,52 +271,50 @@ amidi -p hw:1,0,0 -s req.syx
 amidi -p hw:1,0,0 -d -t 60 > dump.syx
 ```
 
-Uploading in simple terms: When uploading your pattern bank to Nava via sysex, set in your
-preferred midi sysex program's settings - **Dump upload pause interval: 30ms**
-
-⚠ **A restore has to be paced.** It is ~1,800 messages, and a USB MIDI interface
-takes them from the host about fifteen times faster than its DIN output can clock
-them out at 31250 baud. It buffers the difference until it runs out and then drops
-the rest — which looks like a restore that writes the first few patterns and stops.
+**Why the delay matters:** a full restore is about 1,800 messages. A USB MIDI
+interface accepts them from the computer far faster than it can send them down
+the MIDI cable. It buffers the difference until it runs out, then drops the
+rest — and it looks like a restore that writes a few patterns and stops.
 
 ```bash
-# Windows: paced to the wire rate, no third-party modules needed
+# Windows: paced correctly, no extra modules needed
 python tools/sysex_librarian.py ports
 python tools/sysex_librarian.py send restore.syx --port 1
 ```
 
-`amidi` paces correctly on Linux. In a GUI librarian, find the SysEx delay setting
-— MIDI-OX has one under SysEx View → Configure, as a delay after F7. Anything with
-no pacing control will drop a transfer this size.
+`amidi` on Linux paces correctly by itself. In MIDI-OX the setting is under
+*SysEx View → Configure*, as a delay after F7. Any tool with no delay setting
+will drop a transfer this size.
 
-After a restore the unit reloads the current pattern once the transfer has been
-quiet for 500 ms.
+After a restore the NAVA reloads the current pattern by itself once the transfer
+has been quiet for half a second.
+
 ---
 
 ## Reporting a problem
 
-Open an [issue](../../issues) and please include:
+Open an [issue](../../issues) and include:
 
-- what you pressed, in order if possible, and what happened
+- what you pressed, in order, and what happened
 - whether the sequencer was running, and at what tempo and scale
 - master or slave sync
-- the build stamp — config page 5 shows it
+- the build number — config page 5 shows it
 
-The sequence of presses is what makes it fixable.
+The order of presses is what makes a bug fixable.
 
 ---
 
 ## Credits and licence
 
 Original NAVA firmware © **E-licktronic**. This is a derivative work of
-v1.028beta, which itself carries community contributions — notably **[zabox]**,
-whose in-source annotations are preserved throughout.
+v1.028beta, which itself includes community contributions — notably from
+**[zabox]**, whose notes are kept throughout the source.
 
-This firmware adds bug fixes, timing work and new features. It is published for
-other NAVA owners to use. **It carries no licence of its own and grants no rights
-over the original code — check E-licktronic's terms before redistributing.** If
-you are E-licktronic and want something changed here, say so and it will be
-changed.
+This firmware adds bug fixes, timing work and new features, and is published
+for other NAVA owners to use. **It has no licence of its own and claims no
+rights over the original code — check E-licktronic's terms before sharing it
+on.** If you are E-licktronic and want something changed here, say so and it
+will be changed.
 
-No warranty. Flashing firmware and writing fuses can brick hardware. You are
+No warranty. Flashing firmware and writing fuses can damage hardware. You are
 responsible for your own backups.
